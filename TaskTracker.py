@@ -13,7 +13,10 @@ class Config: #Default configuration
     'mark-doing     -> mark your task ongoing\n' \
     'list [status]  -> list tasks (status: pending, done, doing)\n' \
     'break          -> end this program\n'
-    now = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+
+    def now():
+        return datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+    
     valid_statuses = ['pending', 'done', 'doing']
 
     if not os.path.exists(task_path): #Add Tasks.JSON when not already available
@@ -35,8 +38,8 @@ class Main:
         "Task": task,
         "Status": "Pending",
         "Description": description,
-        "CreatedAt": Config.now,
-        "EditedAt": Config.now
+        "CreatedAt": Config.now(),
+        "EditedAt": Config.now()
         }
 
         with open(Config.task_path, 'r') as f:
@@ -95,7 +98,7 @@ class Main:
                 task["Task"] = new_name
                 new_description = input(f'Enter new task description (current: {task["Description"]}): ')
                 task["Description"] = new_description
-                task["EditedAt"] = Config.now
+                task["EditedAt"] = Config.now()
                 break
 
         if not found:
@@ -160,7 +163,7 @@ class Main:
         def task_list(): 
             tasks = data["Tasks"]
             if not tasks:
-                return "Yout task list is empty!"
+                return "Your task list is empty!"
             
             lines = ['ID | Task | Status | Description', '-'*50]
 
