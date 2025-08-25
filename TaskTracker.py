@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 import os
 
-class Config:
+class Config: #Default configuration
     task_path = 'Tasks.json'
     help = '\nCommand List :\n' \
     'add            -> add tasks to track\n' \
@@ -16,20 +16,20 @@ class Config:
     now = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
     valid_statuses = ['pending', 'done', 'doing']
 
-    if not os.path.exists(task_path):
+    if not os.path.exists(task_path): #Add Tasks.JSON when not already available
         with open(task_path, 'w') as f:
             json.dump({"Tasks": []},f,indent=2)
 
 
 class Main:
-    def get_task_id():
+    def get_task_id(): #ID for new task
         with open(Config.task_path, 'r') as f:
             data = json.load(f)
         task_id = len(data["Tasks"])
         return task_id
     
 
-    def add(task, description):                
+    def add(task, description): #Add new task and description
         json_task = {
         "Id": Main.get_task_id(),
         "Task": task,
@@ -47,17 +47,17 @@ class Main:
         return json_task["Id"]
     
     
-    def delete(delete_id):
+    def delete(delete_id): #Delete task per ID
         with open(Config.task_path, 'r') as f:    
             data = json.load(f)
 
         index = delete_id
-        if 0 <= index < len(data["Tasks"]):
+        if 0 <= index < len(data["Tasks"]): #Check if ID is inside length
             data["Tasks"].pop(index)
         else:
             return f"Task ID {delete_id} not found."
         
-        for i, task in enumerate(data["Tasks"]):
+        for i, task in enumerate(data["Tasks"]): #re-ID the tasks to fill lowest number
             task["Id"] = i
         
         with open(Config.task_path, 'w') as f:
@@ -68,7 +68,7 @@ class Main:
         return deleted_output
     
     
-    def delall():
+    def delall(): #Delete all task with confirmation
         confirm = input('Are you sure? (Y/N): ')
         if confirm.lower() == 'y':
             with open(Config.task_path, 'r') as f:
@@ -83,12 +83,12 @@ class Main:
             return "Invalid answer."
         
 
-    def edit(task_id):
+    def edit(task_id): #Edit file name and description
         with open(Config.task_path, 'r') as f:
             data = json.load(f)
         
         found = False
-        for task in data["Tasks"]:
+        for task in data["Tasks"]: #Find the correct task by the ID
             if task["Id"] == int(task_id):
                 found = True
                 new_name = input(f'Enter a new task name (current: {task["Task"]}): ')
@@ -107,7 +107,7 @@ class Main:
         return f'Task {task_id} has been updated!'
     
 
-    def mark_done(task_id):
+    def mark_done(task_id): #Mark task as done
         with open(Config.task_path, 'r') as f:
             data = json.load(f)
         
@@ -130,7 +130,7 @@ class Main:
         return f'Task {task_id} has been marked done!'
     
 
-    def mark_doing(task_id):
+    def mark_doing(task_id): #Mark task as doing
         with open(Config.task_path, 'r') as f:
             data = json.load(f)
         
@@ -153,23 +153,23 @@ class Main:
         return f'Task {task_id} has been marked doing!'
         
         
-    def list(status_filter=None,delete_check=False):
+    def list(status_filter=None,delete_check=False): #List with args filter and different message when deletion
         with open(Config.task_path, 'r') as f:
             data = json.load(f)
 
-        def task_list():
+        def task_list(): 
             tasks = data["Tasks"]
             if not tasks:
                 return "Yout task list is empty!"
             
             lines = ['ID | Task | Status | Description', '-'*50]
 
-            for task in tasks:
+            for task in tasks: #Check if theres a filter
                 if status_filter is not None and task["Status"].lower() != str(status_filter).lower():
                     continue
                 lines.append(f'{task["Id"]} | {task["Task"]} | {task["Status"]} | {task["Description"]}')
             
-            if status_filter and len(lines) == 2:
+            if status_filter and len(lines) == 2: #Check if theres any tasks in filtered list
                 return f'No task with status {status_filter}'
             
             return "\n".join(lines)
@@ -180,7 +180,7 @@ class Main:
             return task_list()
         
     
-    def action(command_input):
+    def action(command_input): #All command config
         parts = command_input.strip().split()
         if not parts:
             return 'No command inputted.'
@@ -235,7 +235,7 @@ class Main:
             return f'Unknown command: {commands}'
         
 
-class RunCLI:
+class RunCLI: #Run the program
     print('Welcome to Task Tracker CLI by Prince14!\nType "help" for more Information.')
 
     while True:
