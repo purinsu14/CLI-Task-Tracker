@@ -28,8 +28,9 @@ class Main:
     def get_task_id(): #ID for new task
         with open(Config.task_path, 'r') as f:
             data = json.load(f)
-        task_id = len(data["Tasks"])
-        return task_id
+        if not data["Tasks"]:
+            return 0
+        return max(task["Id"] for task in data["Tasks"]) + 1
     
 
     def add(task, description): #Add new task and description
@@ -54,8 +55,13 @@ class Main:
         with open(Config.task_path, 'r') as f:    
             data = json.load(f)
 
-        index = delete_id
-        if 0 <= index < len(data["Tasks"]): #Check if ID is inside length
+        index = -1
+        for i, task in enumerate(data["Tasks"]):
+            if task["Id"] == delete_id:
+                index = i
+                break
+
+        if index != -1: #Check if ID is inside length
             data["Tasks"].pop(index)
         else:
             return f"Task ID {delete_id} not found."
@@ -78,7 +84,7 @@ class Main:
                 data = json.load(f)
             data["Tasks"] = []
             with open(Config.task_path, 'w') as f:
-                json.dump(data, f)
+                json.dump(data, f, indent=2)
             return "All tasks has been cleared!"
         elif confirm.lower() == 'n':
             return "Your task was not cleared!"
@@ -203,31 +209,47 @@ class Main:
             return f'"{task_input}" has been added to your task list! (ID:{task_id})'
         
         elif commands == 'del':
-            delete_id = int(input(f'{task_list}\nEnter Task ID to delete: '))
-            return Main.delete(delete_id)
+            try:
+                print(task_list)
+                delete_id = int(input('Enter Task ID to delete: '))
+                return Main.delete(delete_id)
+            except ValueError:
+                return "Invalid input. Please enter a numerical Task ID."
         
         elif commands == 'delall':
             return Main.delall()
         
         elif commands == 'edit':
-            input_id = input(f'{task_list}\nEnter Task ID to edit: ')
-            return Main.edit(input_id)
+            try:
+                print(task_list)
+                input_id = int(input('Enter Task ID to edit: '))
+                return Main.edit(input_id)
+            except ValueError:
+                return "Invalid input. Please enter a numerical Task ID."
         
         elif commands == 'mark-done':
-            input_id = input(f'{task_list}\nEnter Task ID to mark done: ')
-            return Main.mark_done(input_id)
+            try:
+                print(task_list)
+                input_id = int(input('Enter Task ID to mark done: '))
+                return Main.mark_done(input_id)
+            except ValueError:
+                return "Invalid input. Please enter a numerical Task ID."
         
         elif commands == 'mark-doing':  
-            input_id = input(f'{task_list}\nEnter Task ID to mark doing: ')
-            return Main.mark_doing(input_id)
+            try:
+                print(task_list)
+                input_id = int(input('Enter Task ID to mark doing: '))
+                return Main.mark_doing(input_id)
+            except ValueError:
+                return "Invalid input. Please enter a numerical Task ID."
         
         elif commands == 'list':
             if args:
                 status = args[0].lower()
                 if status in Config.valid_statuses:
-                    return Main.list(status_filter = status.capitalize())
+                    return Main.list(status_filter = status)
                 else:
-                    return f'Unknown status: {args}. Valid statuses: {", ".join(Config.valid_statuses)}'
+                    return f'Unknown status: {args[0]}. Valid statuses: {", ".join(Config.valid_statuses)}'
             else:
                 return Main.list()
 
@@ -239,6 +261,9 @@ class Main:
         
 
 class RunCLI: #Run the program
+    pass
+
+if __name__ == "__main__":
     print('Welcome to Task Tracker CLI by Prince14!\nType "help" for more Information.')
 
     while True:
